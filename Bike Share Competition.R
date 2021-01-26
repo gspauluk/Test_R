@@ -4,9 +4,7 @@
 library(tidyverse)
 library(DataExplorer)
 library(caret)
-library(vroom)
 library(lubridate)
-library(car)
 
 #read in data
 bike.train <- read.csv("C:\\Users\\gspsk\\Downloads\\train.csv")
@@ -39,7 +37,6 @@ ggplot(data = bike, aes(x = hour, y = count)) +
 ggplot(data = bike, aes(x = season, y = count)) +
   geom_boxplot()
 
-#temp and atemp are highly correlated, so atemp, the 'feel' of the temp will be included
 
 ##Dummy variable encoding - one-hot encoding
 dummyVars(count ~ season, data = bike, sep = "_") %>% 

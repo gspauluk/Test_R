@@ -20,7 +20,6 @@ bike <- bike %>% select(-casual, -registered)
 bike$month <- month(bike$datetime) %>% as.factor()
 bike$season <- as.factor(bike$season)
 bike$holiday <- as.factor(bike$holiday)
-
 bike$hour <- hour(bike$datetime) %>% as.factor()
 
 #Exploratory Plots
@@ -34,11 +33,13 @@ plot_missing(bike)
 plot_correlation(bike, type = "continuous", 
                  cor_args = list(use = 'pairwise.complete.obs'))
 
+ggplot(data = bike, aes(x = hour, y = count)) +
+  geom_boxplot()
+
 ggplot(data = bike, aes(x = season, y = count)) +
   geom_boxplot()
 
-##look for correlations to determine what vars are unnecessary, like temp and atemp, 
-##more variables, more unstable calculations
+#temp and atemp are highly correlated, so atemp, the 'feel' of the temp will be included
 
 ##Dummy variable encoding - one-hot encoding
 dummyVars(count ~ season, data = bike, sep = "_") %>% 
@@ -50,8 +51,6 @@ bike$season <- lm(count ~ season, data = bike) %>%
   predict(., newdata = bike %>% select(-count))
 
 ## Fit some models
-#?train
-
 bike.model <- train(form = count ~ season + holiday + atemp + weather + hour,
                     data = bike %>% filter(id == 'train'),
                     method = "ranger",
@@ -61,13 +60,13 @@ bike.model <- train(form = count ~ season + holiday + atemp + weather + hour,
                       number = 10,
                       repeats = 2))
 
-#caret train models by tag (google)
+#plotting model
 plot(bike.model)
 
+#creating submission
 preds <- predict(bike.model, newdata = bike %>% filter(id == "test"))
 submission <- data.frame(datetime = bike %>% filter(id == "test") %>% pull(datetime),
                          count = preds)
-
 write.csv(x = submission, file = "./MyFirstSubmission.csv", row.names = FALSE)
 
 

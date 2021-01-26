@@ -69,10 +69,26 @@ submission <- data.frame(datetime = bike %>% filter(id == "test") %>% pull(datet
                          count = preds)
 write.csv(x = submission, file = "./MyFirstSubmission.csv", row.names = FALSE)
 
+#--------------------------------------------------------------------------------------
 
+#model 2
+bike2.model <- train(form = count ~ season + holiday + atemp + weather + hour,
+                    data = bike %>% filter(id == 'train'),
+                    method = "ranger",
+                    tuneLength = 11, 
+                    trControl = trainControl(
+                      method = "repeatedcv", 
+                      number = 6,
+                      repeats = 2))
 
+#plotting model
+plot(bike2.model)
 
-
+#creating submission
+preds2 <- predict(bike2.model, newdata = bike %>% filter(id == "test"))
+submission2 <- data.frame(datetime = bike %>% filter(id == "test") %>% pull(datetime),
+                         count = preds2)
+write.csv(x = submission2, file = "./MySecondSubmission.csv", row.names = FALSE)
 
 
 

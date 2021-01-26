@@ -50,7 +50,10 @@ dummyVars(count ~ season, data = bike, sep = "_") %>%
 bike$season <- lm(count ~ season, data = bike) %>% 
   predict(., newdata = bike %>% select(-count))
 
+
+
 ## Fit some models
+
 bike.model <- train(form = count ~ season + holiday + atemp + weather + hour,
                     data = bike %>% filter(id == 'train'),
                     method = "ranger",
@@ -90,8 +93,29 @@ submission2 <- data.frame(datetime = bike %>% filter(id == "test") %>% pull(date
                          count = preds2)
 write.csv(x = submission2, file = "./MySecondSubmission.csv", row.names = FALSE)
 
+#------------------------------------------------------------------------------------
 
+#model 3
 
+#feature engineering, changing bike count to log count
+bike$count <- log1p(bike$count)
 
+bike3.model <- train(form = count ~ season + holiday + atemp + weather + hour,
+                     data = bike %>% filter(id == 'train'),
+                     method = "ranger",
+                     tuneLength = 6, 
+                     trControl = trainControl(
+                       method = "repeatedcv", 
+                       number = 8,
+                       repeats = 2))
 
+#plotting model
+plot(bike3.model)
+
+#creating submission
+preds3 <- expm1(predict(bike3.model, newdata = bike %>% filter(id == "test")))
+
+submission3 <- data.frame(datetime = bike %>% filter(id == "test") %>% pull(datetime),
+                          count = preds3)
+write.csv(x = submission3, file = "./MyThirdSubmission.csv", row.names = FALSE)
 

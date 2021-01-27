@@ -11,10 +11,9 @@ bike.train <- read.csv("C:\\Users\\gspsk\\Downloads\\train.csv")
 bike.test <- read.csv("C:\\Users\\gspsk\\Downloads\\test.csv")
 bike <- bind_rows(train = bike.train, test = bike.test, .id = "id")
 
-##Drop casual and registered
 bike <- bike %>% select(-casual, -registered)
 
-##Feature Engineering (what features do I really want to use)
+##Feature Engineering
 bike$month <- month(bike$datetime) %>% as.factor()
 bike$season <- as.factor(bike$season)
 bike$holiday <- as.factor(bike$holiday)
